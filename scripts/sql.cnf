@@ -1,0 +1,14 @@
+[client]
+host  = ec2-54-91-41-13.compute-1.amazonaws.com
+user = fissionlabs
+password  = fissionlabs
+mysql_version = 5.6.16
+db_name = TEST
+app_name = Datademo
+tomcat_port = 8080
+
+tomcat_dir = /etc/tomcat
+HTTP_connector_port = 5555
+AJP_connector_port = 6666
+shutdown_port = 7777
+

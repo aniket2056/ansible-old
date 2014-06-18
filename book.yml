@@ -5,7 +5,7 @@
     - "vars/main.yml"
   sudo: yes
   roles:
-    - tomcat
+#    - tomcat
     - mysql
     - deploy
     

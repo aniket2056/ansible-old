@@ -3,7 +3,7 @@
   service: name=tomcat7 state=stopped
   
 - name: tomcat script verification - tomstop.py
-  script: {{ansible_dir}}/scripts/tomstop.py
+  script: "{{ansible_dir}}/scripts/tomstop.py"
   
   
 - name: backup old war file if present
@@ -24,7 +24,7 @@
   copy: src=/home/aniket/ansible/{{app_name}}.war dest=/var/lib/tomcat7/webapps
 
 - name: verifying war file transfer - checkwar.py
-  script: {{ansible_dir}}/scripts/checkwar.py
+  script: "{{ansible_dir}}/scripts/checkwar.py"
   
 - name: verifying port {{tomcat_install_port}} availability
   wait_for: host=[WebServer] port={{tomcat_install_port}} timeout=2
@@ -39,13 +39,13 @@
   service: name=tomcat7 state=started
   
 - name: tomcat script verification - tomstart.py
-  script: {{ansible_dir}}/scripts/tomstart.py
+  script: "{{ansible_dir}}/scripts/tomstart.py"
   
 - name: transferring reference webpage of app
   copy: src=/home/aniket/ansible/files/reference.txt dest=/home/ec2-user
 
 - name: script verification to check if app is running -apptest.py
-  script: {{ansible_dir}}/scripts/apptest.py
+  script: "{{ansible_dir}}/scripts/apptest.py"
   
   
 

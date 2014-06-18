@@ -83,13 +83,21 @@
 #  when: result|failed
 #  ignore_erros: yes
 
-- name: changing mysql root password (for new installation)
-  shell: mysqladmin -u {{current_user}} password {{current_password}}
-  when: result|failed
+# - name: changing mysql root password (for new installation)
+#  shell: mysqladmin -u {{current_user}} password {{current_password}}
+#  when: result|failed
+  
+# - name: changing mysql root password (for old installation)
+#  shell: mysqladmin -u {{current_user}} -p{{old_password}} password {{current_password}}
+#  when: result|success
   
 - name: changing mysql root password (for old installation)
-  shell: mysqladmin -u {{current_user}} -p{{old_password}} password {{current_password}}
-  when: result|success
+  mysql_user: name={{current_user}} password={{current_password}} host={{item}} login_user={{current_user}} login_password={{old_password}}
+  with_items:
+#  - [WebServer]
+  - 127.0.0.1
+  - ::1
+  - localhost
   
   
 - name: Deleting old user named {{new_user}} if present
@@ -107,7 +115,7 @@
   copy: src={{ansible_dir}}/scripts/sql.cnf dest=/home/ec2-user/sql.cnf
   
 - name: mysql verification script- pydb.py
-  script: {{ansible_dir}}/scripts/pydb.py
+  script: "{{ansible_dir}}/scripts/pydb.py"
 
 
 
