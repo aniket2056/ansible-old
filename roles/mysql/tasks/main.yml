@@ -10,7 +10,7 @@
   ignore_errors: yes
   when: result|failed
 
-- name: 
+- name: throw error if port not available
   fail: msg="port {{mysql_install_port}} not available...some other server is using the port" 
   when: response|success and result|failed
 
