@@ -1,0 +1,21 @@
+
+  - name: download mysql server
+    get_url: url=ftp://ftp.jaist.ac.jp/pub/mysql/Downloads/MySQL-5.6/MySQL-server-5.6.16-1.linux_glibc2.5.x86_64.rpm dest=/home/aniket/a/mysql-server.rpm
+
+  - name: download mysql client
+    get_url: url=ftp://ftp.jaist.ac.jp/pub/mysql/Downloads/MySQL-5.6/MySQL-client-5.6.16-1.linux_glibc2.5.x86_64.rpm dest=/home/aniket/a/mysql-client.rpm
+
+  - name: download mysql shared
+    get_url: url=ftp://ftp.jaist.ac.jp/pub/mysql/Downloads/MySQL-5.6/MySQL-shared-5.6.16-1.linux_glibc2.5.x86_64.rpm dest=/home/aniket/ansible/mysql-shared.rpm
+  
+  - name: install mysql server
+    command: alien -i /home/aniket/ansible/mysql-server.rpm
+
+  - name: Extraxt mysql client
+    command: alien -i /home/aniket/ansible/mysql-client.rpm
+
+  - name: Extraxt shared
+    command: alien -i /home/aniket/ansible/mysql-shared.rpm
+
+  - name: start server
+    service: name=mysql state=started

@@ -1,0 +1,51 @@
+---
+- name: stopping tomcat for app deployment
+  service: name=tomcat7 state=stopped
+  
+- name: tomcat script verification - tomstop.py
+  script: {{ansible_dir}}/scripts/tomstop.py
+  
+  
+- name: backup old war file if present
+  fetch: src=/var/lib/tomcat7/webapps/* dest=/home/aniket
+  ignore_errors: yes
+
+- name: remove old war file if present
+  command: rm /var/lib/tomcat7/webapps/{{app_name}}.war
+  sudo: yes
+  ignore_errors: yes
+
+- name: remove old app folder if present
+  command: rm -rf /var/lib/tomcat7/webapps/{{app_name}}
+  sudo: yes
+  ignore_errors: yes
+
+- name: upload new war file 
+  copy: src=/home/aniket/ansible/{{app_name}}.war dest=/var/lib/tomcat7/webapps
+
+- name: verifying war file transfer - checkwar.py
+  script: {{ansible_dir}}/scripts/checkwar.py
+  
+- name: verifying port {{tomcat_install_port}} availability
+  wait_for: host=[WebServer] port={{tomcat_install_port}} timeout=2
+  register: response
+  ignore_errors: yes
+
+- name: compiling result
+  fail: msg="port {{tomcat_install_port}} not available..some other server is using the port" 
+  when: response|success
+
+- name: starting tomcat on port {{tomcat_install_port}}
+  service: name=tomcat7 state=started
+  
+- name: tomcat script verification - tomstart.py
+  script: {{ansible_dir}}/scripts/tomstart.py
+  
+- name: transferring reference webpage of app
+  copy: src=/home/aniket/ansible/files/reference.txt dest=/home/ec2-user
+
+- name: script verification to check if app is running -apptest.py
+  script: {{ansible_dir}}/scripts/apptest.py
+  
+  
+

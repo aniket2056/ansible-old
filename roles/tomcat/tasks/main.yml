@@ -1,0 +1,31 @@
+--- 
+- name: checking for old tomcat installation 
+  service: name=tomcat7 state=started enabled=yes
+  register: result
+  ignore_errors: yes
+
+- name: verifying port {{tomcat_install_port}}
+  wait_for: host=[WebServer] port={{tomcat_install_port}} timeout=2
+  register: response
+  ignore_errors: yes
+  when: result|failed
+
+- name: checking for port {{tomcat_install_port}} availability
+  fail: msg="port {{tomcat_install_port}} not available..some other server is using the port" 
+  when: response|success and result|failed
+  
+- name: Installing Tomcat for debian based OS
+  apt: name=tomcat7 state=present
+  when: ansible_os_family == "Debian" and result|failed 
+
+- name: Installing Tomcat for RedHat based OS
+  yum: name=tomcat7 state=present
+  when: ansible_os_family == "RedHat" and result|failed
+
+- name: Starting Tomcat on port {{tomcat_install_port}}
+  service: name=tomcat7 state=started enabled=yes
+  
+- name: tomcat script verification - tomstart.py
+  script: {{ansible_dir}}/scripts/tomstart.py
+
+  

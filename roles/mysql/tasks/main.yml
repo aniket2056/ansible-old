@@ -1,0 +1,115 @@
+---
+- name: checking for old mysql installation
+  service: name=mysql state=started enabled=yes
+  register: result
+  ignore_errors: yes
+
+- name: verifying {{mysql_install_port}} port availability
+  wait_for: host=[WebServer] port={{mysql_install_port}} timeout=1
+  register: response
+  ignore_errors: yes
+  when: result|failed
+
+- name: 
+  fail: msg="port {{mysql_install_port}} not available...some other server is using the port" 
+  when: response|success and result|failed
+
+- name: Downloading mysql
+  copy: src={{ansible_dir}}/files/MySQL-5.6.16-1.el6.x86_64.rpm-bundle.tar dest=/home/ec2-user
+  when: result|failed
+  
+- name: extracting tar file
+  shell: mkdir -p /home/ec2-user/mysql && tar -xvf /home/ec2-user/MySQL-5.6.16-1.el6.x86_64.rpm-bundle.tar -C /home/ec2-user/mysql
+  when: result|failed 
+  
+# - name: installing mysql
+#  shell: rpm -ivh /home/ec2-user/mysql/*.rpm
+#  when: result|failed
+  
+- name: installing mysql
+  yum: name=/home/ec2-user/mysql/MySQL-devel-5.6.16-1.el6.x86_64.rpm state=present
+  when: result|failed
+  
+- name: installing mysql
+  yum: name=/home/ec2-user/mysql/MySQL-embedded-5.6.16-1.el6.x86_64.rpm state=present
+  when: result|failed
+  
+- name: installing mysql
+  yum: name=/home/ec2-user/mysql/MySQL-shared-5.6.16-1.el6.x86_64.rpm state=present
+  when: result|failed
+  
+- name: installing mysql
+  yum: name=/home/ec2-user/mysql/MySQL-client-5.6.16-1.el6.x86_64.rpm state=present
+  when: result|failed
+  
+- name: installing mysql
+  yum: name=/home/ec2-user/mysql/MySQL-shared-compat-5.6.16-1.el6.x86_64.rpm state=present
+  when: result|failed
+  
+- name: installing mysql
+  yum: name=/home/ec2-user/mysql/MySQL-test-5.6.16-1.el6.x86_64.rpm state=present
+  when: result|failed
+  
+- name: installing mysql
+  yum: name=/home/ec2-user/mysql/MySQL-server-5.6.16-1.el6.x86_64.rpm
+  when: result|failed
+    
+- name: Copy my.cnf file (with updated configuration)
+  copy: src=/home/aniket/ansible/files/my.cnf dest=/usr/my.cnf
+  when: result|failed
+  
+- name: installing perl-DBD-MySQL (dependancy package)
+  yum: name=perl-DBD-MySQL.x86_64 state=present
+  when: result|failed
+  
+- name: installing mysqldb
+  shell: mysql_install_db
+  when: result|failed
+  
+- name: changing permissions
+  shell: chown mysql:mysql -R /var/lib/mysql
+  when: result|failed
+  
+- name: installing mysql-python (required for python scripts)
+  yum: name=MySQL-python state=present
+  when: result|failed
+
+- name: Start the MySQL service
+  service: name=mysql state=started
+  when: result|failed
+
+# - name: Run MySQL Password Update Script (only for fresh mysql installation)
+#  script: {{ansible_dir}}/scripts/changepass.sh
+#  when: result|failed
+#  ignore_erros: yes
+
+- name: changing mysql root password (for new installation)
+  shell: mysqladmin -u {{current_user}} password {{current_password}}
+  when: result|failed
+  
+- name: changing mysql root password (for old installation)
+  shell: mysqladmin -u {{current_user}} -p{{old_password}} password {{current_password}}
+  when: result|success
+  
+  
+- name: Deleting old user named {{new_user}} if present
+  mysql_user: name={{new_user}} host=% state=absent login_user={{current_user}} login_password={{current_password}}
+  register: output
+
+- name: Adding new user {{new_user}} 
+  mysql_user: host=% name={{new_user}} password={{new_user_password}} state=present  priv=*.*:ALL,GRANT login_user={{current_user}} login_password={{current_password}}
+  when: output|success
+  
+- name: creating database {{db_name}}
+  mysql_db: name={{db_name}} state=present login_user={{current_user}} login_password={{current_password}}
+  
+- name: transferring sql.cnf file to remote host (contains variables required for script)
+  copy: src={{ansible_dir}}/scripts/sql.cnf dest=/home/ec2-user/sql.cnf
+  
+- name: mysql verification script- pydb.py
+  script: {{ansible_dir}}/scripts/pydb.py
+
+
+
+
+  

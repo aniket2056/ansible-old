@@ -1,0 +1,11 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head><title>Database Result</title></head>
+<body bgcolor="#f0f0f0">
+<h1 align="center">Database Result</h1>
+
+ID: 100, Age: 18, First: Zara, Last: Ali<br>
+ID: 101, Age: 25, First: Mahnaz, Last: Fatma<br>
+ID: 102, Age: 30, First: Zaid, Last: Khan<br>
+ID: 103, Age: 28, First: Sumit, Last: Mittal<br>
+</body></html>

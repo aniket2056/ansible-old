@@ -1,0 +1,11 @@
+---
+#- hosts: localhost:8080
+  
+
+- name: Start Tomcat
+  service: name=tomcat7 state=started enabled=yes
+  
+- name: check
+  ping:
+
+  
