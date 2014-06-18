@@ -15,7 +15,7 @@
   when: response|success and result|failed
 
 - name: Downloading mysql
-  copy: src={{ansible_dir}}/files/MySQL-5.6.16-1.el6.x86_64.rpm-bundle.tar dest=/home/ec2-user
+  get_url: url=http://ftp.ntu.edu.tw/MySQL/Downloads/MySQL-5.6/MySQL-5.6.16-1.el6.x86_64.rpm-bundle.tar dest=/home/ec2-user
   when: result|failed
   
 - name: extracting tar file
